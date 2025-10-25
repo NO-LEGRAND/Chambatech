@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chamba Tech | Servicios para el Hogar Verificados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fc;
+        }
+        /* Definición de colores principales */
+        .color-primary { background-color: #0d47a1; }
+        .text-primary { color: #0d47a1; }
+        .color-secondary { background-color: #ff8c00; }
+        .text-secondary { color: #ff8c00; }
+        .ring-secondary { --tw-ring-color: #ff8c00; }
+        
+        /* Efectos de botón CTA */
+        .cta-button {
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            position: relative; /* Asegura el contexto para elementos internos */
+            overflow: hidden;
+        }
+        .cta-button:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -3px rgba(13, 71, 161, 0.4);
+        }
+        .cta-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .cta-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8; /* Ligeramente más opaco para indicar estado */
+            transform: none !important; /* Deshabilita el hover en el estado de carga */
+            box-shadow: none !important;
+        }
+
+        /* Animación para mensajes temporales */
+        @keyframes slideDown {
+            from { transform: translateY(-100%) translateX(-50%); opacity: 0; }
+            to { transform: translateY(1.25rem) translateX(-50%); opacity: 1; }
+        }
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out forwards;
+        }
+
+        /* Animación para elementos al cargar */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        /* Fondo del Hero */
+        .hero-gradient {
+            background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
+        }
+
+        /* Estilo para etiquetas de sección */
+        .service-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #e3f2fd;
+            border-radius: 50px;
+            color: #0d47a1;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Efectos para tarjetas de estadísticas */
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(13, 71, 161, 0.15);
+        }
+
+        /* Efectos para tarjetas de servicio */
+        .service-card {
+            transition: all 0.3s ease;
+        }
+        .service-card:hover:not(.scale-110) {
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body class="text-gray-800 bg-background">
+
+    <div id="message-box" class="fixed top-5 left-1/2 transform -translate-x-1/2 hidden bg-primary text-white p-4 rounded-lg shadow-xl z-50 transition-opacity duration-500 opacity-0 pointer-events-none">
+        <p id="message-text" class="font-medium"></p>
+    </div>
+
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="#" class="flex items-center">
+                    <img src="https://placehold.co/150x40/0d47a1/ffffff?text=Chamba+Tech" alt="Logo Chamba Tech" class="h-10 rounded-lg">
+                </a>
+                
+                <nav class="hidden md:flex space-x-8 text-gray-600 font-medium">
+                    <a href="#como-funciona" class="hover:text-primary transition">Funcionamiento</a>
+                    <a href="#servicios" class="hover:text-primary transition">Servicios</a>
+                    <a href="#testimonios" class="hover:text-primary transition">Testimonios</a>
+                    <button id="nav-download-button" onclick="handleDownload('App Store', 'nav-download-button')" class="px-4 py-2 bg-secondary text-black rounded-full hover:bg-orange-600 transition shadow-md flex items-center">
+                        <span class="flex items-center">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i>Descargar App
+                        </span>
+                    </button>
+                </nav>
+                
+                <button id="mobile-menu-button" class="md:hidden text-primary p-2 rounded-lg hover:bg-gray-100">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden absolute w-full bg-white shadow-lg border-t border-gray-100 py-4 transition-all duration-300 ease-in-out">
+            <nav class="px-4 space-y-3 text-gray-600 font-medium">
+                <a href="#como-funciona" class="block py-2 hover:bg-gray-50 rounded-lg transition" onclick="toggleMobileMenu()">Funcionamiento</a>
+                <a href="#servicios" class="block py-2 hover:bg-gray-50 rounded-lg transition" onclick="toggleMobileMenu()">Servicios</a>
+                <a href="#testimonios" class="block py-2 hover:bg-gray-50 rounded-lg transition" onclick="toggleMobileMenu()">Testimonios</a>
+                <button onclick="handleDownload('App Store', 'mobile-download-button'); toggleMobileMenu();" class="w-full mt-2 text-left px-4 py-2 bg-secondary text-white rounded-lg hover:bg-orange-600 transition shadow-md flex items-center justify-center">
+                    <span class="flex items-center">
+                        <i data-lucide="download" class="w-5 h-5 mr-2"></i>Descargar App
+                    </span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero-gradient text-white py-20 md:py-32">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="animate-fade-in-up">
+                    <span class="service-badge bg-orange-100 text-secondary">✨ Servicios Verificados</span>
+                    <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
+                        La Confianza que tu <span class="text-secondary">Hogar</span> Necesita
+                    </h1>
+                    <p class="text-xl md:text-2xl font-light mb-8 opacity-90">
+                        Conecta con profesionales técnicos verificados en gasfitería, electricidad y carpintería. Precios transparentes, sin sorpresas.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 mb-8">
+                        <button id="google-play-button-hero" onclick="handleDownload('Google Play', 'google-play-button-hero')" class="cta-button flex items-center justify-center bg-secondary text-white font-bold py-4 px-8 rounded-xl shadow-lg uppercase tracking-wider">
+                            <span class="flex items-center">
+                                <i data-lucide="smartphone" class="w-5 h-5 mr-2"></i>
+                                Google Play
+                            </span>
+                        </button>
+                        <button id="app-store-button-hero" onclick="handleDownload('App Store', 'app-store-button-hero')" class="cta-button flex items-center justify-center bg-white text-primary font-bold py-4 px-8 rounded-xl shadow-lg uppercase tracking-wider">
+                            <span class="flex items-center">
+                                <i data-lucide="apple" class="w-5 h-5 mr-2"></i>
+                                App Store
+                            </span>
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-8 text-sm font-semibold">
+                        <div><strong>+5K</strong> Técnicos Verificados</div>
+                        <div><strong>4.9★</strong> Calificación Promedio</div>
+                        <div><strong>&lt;10min</strong> Tiempo de Respuesta</div>
+                    </div>
+                </div>
+                <div class="hidden lg:flex justify-center">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=500&h=600&fit=crop" alt="App Mobile" class="rounded-3xl shadow-2xl border-8 border-white transform hover:scale-105 transition">
+                        <div class="absolute -bottom-4 -right-4 bg-white p-4 rounded-xl shadow-lg transform rotate-3">
+                            <i data-lucide="check-circle" class="w-8 h-8 text-secondary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
+                <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 p-6 sm:p-8 rounded-xl text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-primary mb-2">50K+</div>
+                    <p class="text-sm md:text-base text-gray-600">Clientes Satisfechos</p>
+                </div>
+                <div class="stat-card bg-gradient-to-br from-orange-50 to-orange-100 p-6 sm:p-8 rounded-xl text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-secondary mb-2">100K+</div>
+                    <p class="text-sm md:text-base text-gray-600">Servicios Completados</p>
+                </div>
+                <div class="stat-card bg-gradient-to-br from-green-50 to-green-100 p-6 sm:p-8 rounded-xl text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-green-600 mb-2">24/7</div>
+                    <p class="text-sm md:text-base text-gray-600">Disponibilidad</p>
+                </div>
+                <div class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 p-6 sm:p-8 rounded-xl text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-purple-600 mb-2">S/ 25</div>
+                    <p class="text-sm md:text-base text-gray-600">Tarifa Base</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="como-funciona" class="py-20 md:py-28 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="service-badge">Proceso Simple</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-primary mb-4">
+                    3 Pasos, 100% Confianza
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Solo 5 minutos para conectar con un profesional verificado.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition relative animate-fade-in-up" style="animation-delay: 0.1s;">
+                    <div class="absolute -top-8 left-8 w-16 h-16 color-secondary text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg ring-4 ring-white">1</div>
+                    <div class="pt-8 mb-6">
+                        <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=300&h=200&fit=crop" alt="Solicita" class="w-full h-48 object-cover rounded-xl">
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Solicita y Cotiza</h3>
+                    <p class="text-gray-600 mb-4">Describe el problema en la app, elige el servicio y recibe una cotización transparente al instante.</p>
+                    <div class="flex items-center text-secondary font-semibold">
+                        <i data-lucide="zap" class="w-5 h-5 mr-2"></i>
+                        Cotización instantánea y sin compromiso
+                    </div>
+                </div>
+
+                <div class="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition relative animate-fade-in-up" style="animation-delay: 0.2s;">
+                    <div class="absolute -top-8 left-8 w-16 h-16 color-secondary text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg ring-4 ring-white">2</div>
+                    <div class="pt-8 mb-6">
+                        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=200&fit=crop" alt="Conecta" class="w-full h-48 object-cover rounded-xl">
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Conecta al Instante</h3>
+                    <p class="text-gray-600 mb-4">Te asignamos un técnico geolocalizado y verificado que llegará a tu ubicación en minutos.</p>
+                    <div class="flex items-center text-secondary font-semibold">
+                        <i data-lucide="map-pin" class="w-5 h-5 mr-2"></i>
+                        Localización en tiempo real y rápido
+                    </div>
+                </div>
+
+                <div class="group bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition relative animate-fade-in-up" style="animation-delay: 0.3s;">
+                    <div class="absolute -top-8 left-8 w-16 h-16 color-secondary text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg ring-4 ring-white">3</div>
+                    <div class="pt-8 mb-6">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop" alt="Paga" class="w-full h-48 object-cover rounded-xl">
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Paga y Califica</h3>
+                    <p class="text-gray-600 mb-4">Pago seguro con tarjeta o efectivo en la app. Califica la experiencia y el servicio recibido.</p>
+                    <div class="flex items-center text-secondary font-semibold">
+                        <i data-lucide="shield-check" class="w-5 h-5 mr-2"></i>
+                        Garantía y pago 100% seguro
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="servicios" class="py-20 md:py-28 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="service-badge">Nuestras Especialidades</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-primary mb-4">
+                    Servicios Técnicos Completos
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Haz clic en un servicio para ver detalles, problemas comunes y precios estimados.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <button id="card-gasfiteria" onclick="selectService('gasfiteria')" class="service-card p-4 sm:p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 text-center transition ring-4 ring-transparent">
+                    <i data-lucide="droplet" class="w-8 h-8 sm:w-10 sm:h-10 text-primary mx-auto mb-1 sm:mb-3"></i>
+                    <span class="font-bold block text-xs sm:text-sm">Gasfitería</span>
+                </button>
+                <button id="card-electricidad" onclick="selectService('electricidad')" class="service-card p-4 sm:p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl hover:from-yellow-100 hover:to-yellow-200 text-center transition ring-4 ring-transparent">
+                    <i data-lucide="zap" class="w-8 h-8 sm:w-10 sm:h-10 text-secondary mx-auto mb-1 sm:mb-3"></i>
+                    <span class="font-bold block text-xs sm:text-sm">Electricidad</span>
+                </button>
+                <button id="card-carpinteria" onclick="selectService('carpinteria')" class="service-card p-4 sm:p-6 bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl hover:from-amber-100 hover:to-amber-200 text-center transition ring-4 ring-transparent">
+                    <i data-lucide="hammer" class="w-8 h-8 sm:w-10 sm:h-10 text-amber-600 mx-auto mb-1 sm:mb-3"></i>
+                    <span class="font-bold block text-xs sm:text-sm">Carpintería</span>
+                </button>
+                <button id="card-pintura" onclick="selectService('pintura')" class="service-card p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl hover:from-purple-100 hover:to-purple-200 text-center transition ring-4 ring-transparent">
+                    <i data-lucide="paint-roller" class="w-8 h-8 sm:w-10 sm:h-10 text-purple-600 mx-auto mb-1 sm:mb-3"></i>
+                    <span class="font-bold block text-xs sm:text-sm">Pintura</span>
+                </button>
+                <button id="card-cerrajeria" onclick="selectService('cerrajeria')" class="service-card p-4 sm:p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl hover:from-pink-100 hover:to-pink-200 text-center transition ring-4 ring-transparent">
+                    <i data-lucide="key" class="w-8 h-8 sm:w-10 sm:h-10 text-pink-600 mx-auto mb-1 sm:mb-3"></i>
+                    <span class="font-bold block text-xs sm:text-sm">Cerrajería</span>
+                </button>
+            </div>
+
+            <div id="service-details-panel" class="bg-gradient-to-r from-blue-50 to-orange-50 p-6 md:p-12 rounded-2xl shadow-xl border-l-4 border-primary transition duration-500 ease-in-out">
+                
+                <h3 id="panel-title" class="text-3xl text-primary font-extrabold mb-4">
+                    Selecciona un Servicio
+                </h3>
+                <p id="panel-description" class="text-lg text-gray-700 mb-6">
+                    Haz clic en una de las especialidades para ver detalles específicos, problemas comunes y estimaciones de precios.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div id="panel-content-dynamic" class="space-y-4">
+                        <p class="flex items-start">
+                            <i data-lucide="info" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                            <span><strong>Tarifa Fija:</strong> Todos los servicios incluyen S/ 25 de visita y diagnóstico, descontable del total.</span>
+                        </p>
+                        <p class="flex items-start">
+                            <i data-lucide="clock" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                            <span><strong>Horarios:</strong> 7:00 AM - 8:00 PM | Emergencias 24/7 (tarifa adicional)</span>
+                        </p>
+                        <p class="flex items-start">
+                            <i data-lucide="award" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                            <span><strong>Garantía:</strong> Todos nuestros técnicos ofrecen 3 meses de garantía en sus trabajos.</span>
+                        </p>
+                    </div>
+                    
+                    <div class="h-64 rounded-xl overflow-hidden shadow-lg">
+                    <img id="panel-image" src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop" alt="Servicio" class="w-full h-full rounded-xl object-cover">
+                    </div>
+                </div>
+
+                <button id="cta-service-select" onclick="showMessage('¡Descarga la App! Solicitud de Servicio iniciada.')" class="mt-8 cta-button w-full md:w-auto bg-secondary text-black font-bold py-4 px-8 rounded-xl shadow-lg hover:bg-orange-600 uppercase tracking-wider">
+                    Solicitar Servicio Ahora
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonios" class="py-20 md:py-28 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="service-badge">Opiniones Reales</span>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-primary mb-4">
+                    Lo Que Dicen Nuestros Clientes
+                </h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Tu seguridad y satisfacción son nuestra prioridad número uno.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition relative">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex text-yellow-400 mb-2">
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                        </div>
+                        <i data-lucide="quote-2" class="w-8 h-8 text-secondary opacity-30"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&fit=crop" alt="Ana M" class="w-12 h-12 rounded-full mb-4 object-cover">
+                    <p class="italic text-gray-700 mb-4">"¡Increíble la rapidez! Necesité un electricista un domingo y en menos de 30 minutos llegó. Profesional, amable y con precios claros. ¡Totalmente recomendado!"</p>
+                    <p class="font-bold text-gray-800">Ana M.</p>
+                    <p class="text-sm text-gray-500">San Isidro • Lima</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition relative">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex text-yellow-400 mb-2">
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                        </div>
+                        <i data-lucide="quote-2" class="w-8 h-8 text-secondary opacity-30"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop" alt="Ricardo P" class="w-12 h-12 rounded-full mb-4 object-cover">
+                    <p class="italic text-gray-700 mb-4">"Estaba cansado de gasfiteros informales. Con Chamba Tech tengo seguridad, garantía y puedo pagar con tarjeta. El técnico fue muy profesional y puntual."</p>
+                    <p class="font-bold text-gray-800">Ricardo P.</p>
+                    <p class="text-sm text-gray-500">Surco • Lima</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition relative">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex text-yellow-400 mb-2">
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                            <i data-lucide="star" class="w-5 h-5 fill-yellow-400"></i>
+                        </div>
+                        <i data-lucide="quote-2" class="w-8 h-8 text-secondary opacity-30"></i>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop" alt="Elena S" class="w-12 h-12 rounded-full mb-4 object-cover">
+                    <p class="italic text-gray-700 mb-4">"Usé el servicio de Carpintería para unos muebles. Trabajo limpio, rápido y el técnico muy amable. ¡Es la Uberización de los servicios para el hogar!"</p>
+                    <p class="font-bold text-gray-800">Elena S.</p>
+                    <p class="text-sm text-gray-500">La Molina • Lima</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="hero-gradient text-white py-20">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-extrabold mb-4">¿Listo para resolver ese problema?</h2>
+            <p class="text-xl font-light mb-10 opacity-90">
+                Descarga Chamba Tech hoy y encuentra un profesional verificado en menos de 5 minutos.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button id="google-play-button-footer" onclick="handleDownload('Google Play', 'google-play-button-footer')" class="cta-button flex items-center justify-center bg-secondary text-white font-bold py-4 px-8 rounded-xl shadow-lg uppercase tracking-wider">
+                    <span class="flex items-center">
+                        <i data-lucide="smartphone" class="w-5 h-5 mr-2"></i>
+                        Descargar Google Play
+                    </span>
+                </button>
+                <button id="app-store-button-footer" onclick="handleDownload('App Store', 'app-store-button-footer')" class="cta-button flex items-center justify-center bg-white text-primary font-bold py-4 px-8 rounded-xl shadow-lg uppercase tracking-wider">
+                    <span class="flex items-center">
+                        <i data-lucide="apple" class="w-5 h-5 mr-2"></i>
+                        Descargar App Store
+                    </span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-900 text-gray-300 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <img src="https://placehold.co/150x40/0d47a1/ffffff?text=Chamba+Tech" alt="Logo" class="h-8 mb-4 rounded-lg">
+                    <p class="text-sm">Servicios del hogar | Lima, Perú</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">La Empresa</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-secondary transition">Quiénes Somos</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Únete (Técnicos)</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Prensa</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Legal</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-secondary transition">Términos</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Privacidad</a></li>
+                        <li><a href="#" class="hover:text-secondary transition">Garantía</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-3">Síguenos</h4>
+                    <div class="flex space-x-3">
+                        <a href="#" class="hover:text-secondary transition"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                        <a href="#" class="hover:text-secondary transition"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="hover:text-secondary transition"><i data-lucide="linkedin" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
+                &copy; 2025 Chamba Tech S.A.C. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data de Servicios (para el panel dinámico) ---
+        const serviceDetails = {
+            gasfiteria: {
+                title: "Gasfitería de Emergencia y Mantenimiento",
+                description: "Soluciones rápidas y garantizadas para fugas, desatoros e instalaciones sanitarias. ¡Técnicos certificados para proteger tu hogar!",
+                image: "https://tse4.mm.bing.net/th/id/OIP.EXObV5Mm74Ff1jrlbz7XEAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3",
+                color: 'blue-600',
+                problems: [
+                    "Desatoro de inodoros y lavaderos.",
+                    "Reparación de fugas de agua y grifería.",
+                    "Instalación y mantenimiento de calentadores (termas).",
+                    "Detección y reparación de filtraciones ocultas."
+                ],
+                price: "Desde S/ 60 (mano de obra)"
+            },
+            electricidad: {
+                title: "Electricidad: Instalación y Reparación Segura",
+                description: "Técnicos electricistas autorizados para solucionar cortocircuitos, instalar puntos de luz, reparar tableros y más. ¡Tu seguridad es lo primero!",
+                image: "https://tse1.mm.bing.net/th/id/OIP.0seSZwIiCC5pAOdbrWtCEgHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                color: 'yellow-600',
+                problems: [
+                    "Reparación de cortocircuitos y fallas de energía.",
+                    "Instalación o reubicación de tomacorrientes e interruptores.",
+                    "Mantenimiento y cambio de tableros eléctricos.",
+                    "Instalación de luminarias y dicroicos."
+                ],
+                price: "Desde S/ 75 (mano de obra)"
+            },
+            carpinteria: {
+                title: "Carpintería y Ebanistería a Medida",
+                description: "Servicios de reparación, ensamblaje y fabricación de muebles de madera y melamina. Dale nueva vida a tus espacios con profesionales expertos.",
+                image: "https://tse4.mm.bing.net/th/id/OIP.xWy-C0Kwm9FkE8u5Aw1ePgHaE8?rs=1&pid=ImgDetMain&o=7&rm=3",
+                color: 'amber-700',
+                problems: [
+                    "Reparación de puertas y ventanas de madera.",
+                    "Instalación de repisas, cortinas y soportes.",
+                    "Ensamblaje y reparación de muebles del hogar.",
+                    "Servicios de ebanistería y acabados finos."
+                ],
+                price: "Desde S/ 85 (mano de obra)"
+            },
+            pintura: {
+                title: "Servicios de Pintura Profesional",
+                description: "Pintores con experiencia para interiores, exteriores y acabados especiales. Te ayudamos a renovar tu hogar con calidad y rapidez.",
+                image: "https://tse1.mm.bing.net/th/id/OIP.LZsEKEpoZZlrbVpjp0Oy1QHaEa?rs=1&pid=ImgDetMain&o=7&rm=3",
+                color: 'purple-600',
+                problems: [
+                    "Pintura de paredes y techos interiores.",
+                    "Aplicación de pintura en fachadas (exteriores).",
+                    "Reparación de grietas y empastado.",
+                    "Asesoría en combinación y tipo de pinturas."
+                ],
+                price: "Consultar por m²"
+            },
+            cerrajeria: {
+                title: "Cerrajería Rápida 24 Horas",
+                description: "Apertura de puertas sin daños, cambio e instalación de cerraduras de seguridad. Llama a un cerrajero verificado para cualquier emergencia.",
+                image: "https://tse4.mm.bing.net/th/id/OIP.YPAJ7exRzwl0vWmZ1eWEqwHaFG?rs=1&pid=ImgDetMain&o=7&rm=3",
+                color: 'pink-600',
+                problems: [
+                    "Apertura de puertas (casas y autos) sin daños.",
+                    "Instalación de cerraduras de alta seguridad.",
+                    "Duplicado de llaves y mantenimiento.",
+                    "Reparación de cerrojos y bombines."
+                ],
+                price: "Desde S/ 50 (apertura simple)"
+            }
+        };
+
+        window.onload = () => {
+            // Inicializa los iconos de Lucide
+            lucide.createIcons();
+            // Mostrar la descripción inicial del panel
+            selectService('default'); 
+            
+            // Asigna el evento de toggle al botón de menú móvil
+            document.getElementById('mobile-menu-button').addEventListener('click', toggleMobileMenu);
+        };
+
+        /**
+         * Maneja el toggle del menú de navegación móvil.
+         */
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.querySelector('#mobile-menu-button i');
+
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.setAttribute('data-lucide', 'x');
+            } else {
+                menu.classList.add('hidden');
+                icon.setAttribute('data-lucide', 'menu');
+            }
+            lucide.createIcons(); // Vuelve a crear el icono
+        }
+
+        /**
+         * Muestra un mensaje temporal de notificación.
+         * @param {string} message - El texto del mensaje.
+         * @param {string} type - 'success' (primary) o 'error' (red).
+         */
+        function showMessage(message, type = 'success') {
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-primary', 'bg-red-500', 'bg-secondary');
+            
+            if (type === 'success') {
+                messageBox.classList.add('bg-primary');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-500');
+            } else if (type === 'secondary') {
+                 // Usar secondary para la acción del servicio
+                messageBox.classList.add('bg-secondary'); 
+            }
+
+            messageBox.classList.add('animate-slide-down');
+            messageBox.classList.remove('opacity-0', 'pointer-events-none');
+
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                messageBox.classList.add('opacity-0', 'pointer-events-none');
+                messageBox.classList.remove('animate-slide-down');
+                setTimeout(() => messageBox.classList.add('hidden'), 500);
+            }, 3000);
+        }
+
+        /**
+         * Simula la descarga de la App, CON SOLUCIÓN A SUPERPOSICIÓN.
+         * @param {string} platform - 'Google Play' o 'App Store'.
+         * @param {string} buttonId - ID del botón que se clickeó.
+         */
+        async function handleDownload(platform, buttonId) {
+            const button = document.getElementById(buttonId);
+            if (!button) return;
+            
+            // Se asume que el contenido original (texto e icono) está dentro del primer span.
+            const contentSpan = button.querySelector('span');
+            if (!contentSpan) return;
+
+            const originalButtonContent = contentSpan.innerHTML;
+            
+            button.disabled = true;
+            button.classList.add('pointer-events-none'); // Deshabilitar clics
+
+            // Indicador de carga (Spinner), asegurando que el spinner se ajuste al espacio del contenido
+            contentSpan.innerHTML = `<svg class="animate-spin h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg> Descargando...`;
+            
+            // Ajuste de color del spinner para App Store (fondo blanco)
+            if (platform === 'App Store') {
+                button.querySelector('svg').classList.remove('text-white');
+                button.querySelector('svg').classList.add('text-primary');
+            } else {
+                 button.querySelector('svg').classList.add('text-white');
+                 button.querySelector('svg').classList.remove('text-primary');
+            }
+            
+            contentSpan.classList.add('justify-center', 'items-center');
+
+            showMessage(`Preparando redirección a ${platform}...`, 'success');
+
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Simula espera de red
+            
+            contentSpan.innerHTML = originalButtonContent; // Restaura el contenido original
+            button.disabled = false;
+            button.classList.remove('pointer-events-none');
+            lucide.createIcons(); // Vuelve a crear los iconos en el botón
+            showMessage(`¡Redirigiendo a ${platform} para descargar!`, 'success');
+        }
+
+        /**
+         * Actualiza el panel de detalles con información del servicio seleccionado.
+         * @param {string} serviceKey - La clave del servicio ('gasfiteria', 'electricidad', etc.).
+         */
+        function selectService(serviceKey) {
+            const service = serviceDetails[serviceKey];
+            const panelTitle = document.getElementById('panel-title');
+            const panelDescription = document.getElementById('panel-description');
+            const panelContentDynamic = document.getElementById('panel-content-dynamic');
+            const panelImage = document.getElementById('panel-image');
+            const ctaButton = document.getElementById('cta-service-select');
+
+            // 1. Resetear estilos de todas las tarjetas
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('ring-4', 'ring-secondary', 'shadow-2xl', 'scale-110');
+            });
+            
+            // 2. Si no es el estado inicial ('default'), aplicar estilo y actualizar CTA
+            if (service) {
+                // Aplicar estilo de seleccionado a la tarjeta
+                const selectedCard = document.getElementById(`card-${serviceKey}`);
+                if (selectedCard) {
+                    selectedCard.classList.add('ring-4', 'ring-secondary', 'shadow-2xl', 'scale-110');
+                }
+
+                // Actualizar contenido del panel
+                panelTitle.textContent = service.title;
+                panelDescription.textContent = service.description;
+                panelImage.src = service.image;
+                
+                // Generar lista de problemas comunes
+                const problemsHtml = `
+                    <div class="space-y-4">
+                        <h4 class="text-xl font-bold text-primary border-b border-secondary/50 pb-2">Problemas Comunes (${service.price})</h4>
+                        ${service.problems.map(problem => `
+                            <p class="flex items-start">
+                                <i data-lucide="wrench" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                                <span>${problem}</span>
+                            </p>
+                        `).join('')}
+                    </div>
+                `;
+                
+                panelContentDynamic.innerHTML = problemsHtml;
+                ctaButton.textContent = `Solicitar ${service.title.split(' ')[0]} Ahora`;
+                // Se ajusta la acción del botón de solicitud
+                ctaButton.onclick = () => showMessage(`Iniciando solicitud para: ${service.title.split(' ')[0]}. ¡Descarga la App!`, 'secondary');
+                
+                showMessage(`Detalles de ${service.title.split(' ')[0]} actualizados.`, 'secondary');
+
+            } else {
+                // Estado inicial 'default' (sin servicio seleccionado)
+                panelTitle.textContent = "Selecciona un Servicio";
+                panelDescription.textContent = "Haz clic en una de las especialidades para ver detalles específicos, problemas comunes y estimaciones de precios.";
+                panelImage.src = "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop"; // Imagen inicial
+                
+                // Contenido por defecto (Tarifa, Horarios, Garantía)
+                panelContentDynamic.innerHTML = `
+                    <p class="flex items-start">
+                        <i data-lucide="info" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                        <span><strong>Tarifa Fija:</strong> Todos los servicios incluyen S/ 25 de visita y diagnóstico, descontable del total.</span>
+                    </p>
+                    <p class="flex items-start">
+                        <i data-lucide="clock" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                        <span><strong>Horarios:</strong> 7:00 AM - 8:00 PM | Emergencias 24/7 (tarifa adicional)</span>
+                    </p>
+                    <p class="flex items-start">
+                        <i data-lucide="award" class="w-6 h-6 mr-3 text-secondary flex-shrink-0 mt-1"></i>
+                        <span><strong>Garantía:</strong> Todos nuestros técnicos ofrecen 3 meses de garantía en sus trabajos.</span>
+                    </p>
+                `;
+                ctaButton.textContent = "Solicitar Servicio Ahora";
+                ctaButton.onclick = () => showMessage('¡Descarga la App! Solicitud de Servicio iniciada.', 'secondary');
+            }
+
+            // Vuelve a inicializar iconos de Lucide para contenido dinámico
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
